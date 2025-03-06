@@ -10,19 +10,24 @@ export default class MainPresenter {
   eventListComponent = new EventsListView();
 
 
-  constructor() {
-    this.eventsContainer = document.querySelector('.trip-events');
-    this.filterContainer = document.querySelector('.trip-controls__filters');
+  constructor(eventsContainer, filterContainer, eventModel) {
+    this.eventsContainer = eventsContainer;
+    this.filterContainer = filterContainer;
+    this.eventModel = eventModel;
   }
 
   init() {
+    this.eventsList = [...this.eventModel.getEvents()];
+    this.offersList = [...this.eventModel.getOffers()];
+
     render(new FiltersView(), this.filterContainer);
     render(new SortView(), this.eventsContainer);
     render(this.eventListComponent, this.eventsContainer);
-    render(new FormEditorView(), this.eventListComponent.getElement());
+    render(new FormEditorView({event: this.eventsList[0], offers: this.offersList}), this.eventListComponent.getElement());
 
-    for (let i = 0; i < 3; i++) {
-      render(new CurrentEventView(), this.eventListComponent.getElement());
+    for (let i = 1; i < this.eventsList.length; i++) {
+      const eventOffers = this.offersList.find((offer) => offer.type === this.eventsList[i].type);
+      render(new CurrentEventView({event: this.eventsList[i], offers: eventOffers}), this.eventListComponent.getElement());
     }
 
     render(new FormCreationView(), this.eventListComponent.getElement());
