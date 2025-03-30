@@ -1,10 +1,12 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {formatDate} from '../utils.js';
 import {ROUTE_POINT_TYPES} from '../const.js';
 
-function createFormEditorTemplate(event, allOffers) {
+function createFormEditorTemplate(event, allOffers, cityDestinations) {
   const {price, dateFrom, dateTo, cityDestination, offers, type} = event;
   const eventTypeOffers = allOffers.find((offer) => offer.type === type);
+  const cityDestinationDescription = cityDestinations.find((destination) => destination.id === cityDestination);
+  const renderCityDestinations = cityDestinations.map((destination) => `<option value="${destination.name}"></option>`).join('');
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -30,13 +32,9 @@ function createFormEditorTemplate(event, allOffers) {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cityDestination.name}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cityDestinationDescription.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
-                      <option value="Moscow"></option>
-                      <option value="Berlin"></option>
-                      <option value="Paris"></option>
-                      <option value="Stockholm"></option>
-                      <option value="London"></option>
+                      ${renderCityDestinations}
                     </datalist>
                   </div>
 
@@ -81,7 +79,7 @@ function createFormEditorTemplate(event, allOffers) {
                     <p class="event__destination-description">${cityDestination.description}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
-                        ${cityDestination.pictures.map((image) => `<img class="event__photo" src="${image.src}" alt="${image.description}">`).join('')}
+                        ${cityDestinationDescription.pictures.map((image) => `<img class="event__photo" src="${image.src}" alt="${image.description}">`).join('')}
                       </div>
                     </div>
                   </section>
@@ -90,24 +88,36 @@ function createFormEditorTemplate(event, allOffers) {
             </li>`;
 }
 
-export default class FormEditorView {
-  constructor({event, offers}) {
-    this.event = event;
-    this.offers = offers;
+export default class FormEditorView extends AbstractView {
+  #point = null;
+  #offers = null;
+  #cityDestinations = null;
+  #formSubmit = null;
+  #formReset = null;
+
+  constructor({point, offers, cityDestinations, onFormSubmit, onFormReset}) {
+    super();
+    this.#point = point;
+    this.#offers = offers;
+    this.#cityDestinations = cityDestinations;
+    this.#formSubmit = onFormSubmit;
+    this.#formReset = onFormReset;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('form').addEventListener('reset', this.#formResetHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formResetHandler);
   }
 
-  getTemplate() {
-    return createFormEditorTemplate(this.event, this.offers);
+  get template() {
+    return createFormEditorTemplate(this.#point, this.#offers, this.#cityDestinations);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
+  #formSubmitHandler = (e) => {
+    e.preventDefault();
+    this.#formSubmit();
+  };
 
-  removeElement() {
-    this.element = null;
-  }
+  #formResetHandler = () => {
+    this.#formReset();
+  };
 }
