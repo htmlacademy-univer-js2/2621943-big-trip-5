@@ -1,6 +1,6 @@
 import {ROUTE_POINT_TYPES} from '../const.js';
 import {getRandomElement} from '../utils.js';
-import {getRandomCityDestination} from './city-destination.js';
+import {getRandomCityDestinationID} from './city-destination.js';
 
 const mockEvents = [
   {
@@ -8,7 +8,7 @@ const mockEvents = [
     price: 7600,
     dateFrom: new Date('2024-12-20'),
     dateTo: new Date('2024-12-23'),
-    cityDestination: getRandomCityDestination(),
+    cityDestination: getRandomCityDestinationID(),
     isFavorite: true,
     offers: [
       1, 2
@@ -20,7 +20,7 @@ const mockEvents = [
     price: 1500,
     dateFrom: new Date('2024-12-11'),
     dateTo: new Date('2024-12-13'),
-    cityDestination: getRandomCityDestination(),
+    cityDestination: getRandomCityDestinationID(),
     isFavorite: false,
     offers: [
       1
@@ -32,7 +32,7 @@ const mockEvents = [
     price: 900,
     dateFrom: new Date('2024-12-20'),
     dateTo: new Date('2024-12-25'),
-    cityDestination: getRandomCityDestination(),
+    cityDestination: getRandomCityDestinationID(),
     isFavorite: true,
     offers: [
       2, 4
@@ -44,7 +44,7 @@ const mockEvents = [
     price: 8200,
     dateFrom: new Date('2024-12-01'),
     dateTo: new Date('2024-12-18'),
-    cityDestination: getRandomCityDestination(),
+    cityDestination: getRandomCityDestinationID(),
     isFavorite: false,
     offers: [
       2, 3
@@ -56,7 +56,7 @@ const mockEvents = [
     price: 1300,
     dateFrom: new Date('2024-12-09'),
     dateTo: new Date('2024-12-19'),
-    cityDestination: getRandomCityDestination(),
+    cityDestination: getRandomCityDestinationID(),
     isFavorite: true,
     offers: [
       1, 2, 3
@@ -68,7 +68,7 @@ const mockEvents = [
     price: 6500,
     dateFrom: new Date('2024-10-03'),
     dateTo: new Date('2024-12-09'),
-    cityDestination: getRandomCityDestination(),
+    cityDestination: getRandomCityDestinationID(),
     isFavorite: false,
     offers: [
       3

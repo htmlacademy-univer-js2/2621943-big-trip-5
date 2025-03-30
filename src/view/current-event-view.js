@@ -1,8 +1,10 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {formatDate, findDuration} from '../utils.js';
 
-function createCurrentEventTemplate(event, allOffers) {
+function createCurrentEventTemplate(event, allOffers, cityDestinations) {
   const {price, dateFrom, dateTo, cityDestination, isFavorite, offers, type} = event;
+  const eventTypeOffers = allOffers.find((offer) => offer.type === type);
+  const cityDestinationDescription = cityDestinations.find((destination) => destination.id === cityDestination);
 
   return `<li class="trip-events__item">
               <div class="event">
@@ -10,21 +12,21 @@ function createCurrentEventTemplate(event, allOffers) {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${type} ${cityDestination.name}</h3>
+                <h3 class="event__title">${type} ${cityDestinationDescription.name}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="2019-03-18T10:30">${formatDate(dateFrom)}</time>
                     &mdash;
                     <time class="event__end-time" datetime="2019-03-18T11:00">${formatDate(dateTo)}</time>
                   </p>
-                  <p class="event__duration">${findDuration(dateFrom, dateTo)}D</p>
+                  <p class="event__duration">${findDuration(dateFrom, dateTo)}</p>
                 </div>
                 <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${price}</span>
                 </p>
                 <h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">
-                  ${allOffers.offers.map((offer) => {
+                  ${eventTypeOffers.offers.map((offer) => {
     if (offers.includes(offer.id)) {
       return (`<li class="event__offer">
         <span class="event__offer-title">${offer.title}</span>
@@ -47,24 +49,27 @@ function createCurrentEventTemplate(event, allOffers) {
             </li>`;
 }
 
-export default class CurrentEventView {
-  constructor({event, offers}) {
-    this.event = event;
-    this.offers = offers;
+export default class CurrentEventView extends AbstractView {
+  #point = null;
+  #offers = null;
+  #cityDestinations = null;
+  #editClick = null;
+
+  constructor({point, offers, cityDestinations, onEditClick}) {
+    super();
+    this.#point = point;
+    this.#offers = offers;
+    this.#cityDestinations = cityDestinations;
+    this.#editClick = onEditClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
-    return createCurrentEventTemplate(this.event, this.offers);
+  get template() {
+    return createCurrentEventTemplate(this.#point, this.#offers, this.#cityDestinations);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #editClickHandler = () => {
+    this.#editClick();
+  };
 }

@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createFormCreationTemplate() {
   return `<li class="trip-events__item">
@@ -7,7 +7,7 @@ function createFormCreationTemplate() {
                   <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+                      <img class="event__type-icon" width="34" height="35" src="../../public/img/icons/flight.png" alt="Event type icon">
                     </label>
                     <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -152,11 +152,11 @@ function createFormCreationTemplate() {
 
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
-                        <img class="event__photo" src="img/photos/1.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/2.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/3.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/4.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/5.jpg" alt="Event photo">
+                        <img class="event__photo" src="../../public/img/photos/1.jpg" alt="Event photo">
+                        <img class="event__photo" src="../../public/img/photos/2.jpg" alt="Event photo">
+                        <img class="event__photo" src="../../public/img/photos/3.jpg" alt="Event photo">
+                        <img class="event__photo" src="../../public/img/photos/4.jpg" alt="Event photo">
+                        <img class="event__photo" src="../../public/img/photos/5.jpg" alt="Event photo">
                       </div>
                     </div>
                   </section>
@@ -165,19 +165,8 @@ function createFormCreationTemplate() {
             </li>`;
 }
 
-export default class FormCreationView {
-  getTemplate() {
+export default class FormCreationView extends AbstractView {
+  get template() {
     return createFormCreationTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
