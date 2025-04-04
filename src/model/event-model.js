@@ -7,7 +7,7 @@ const NUMBER_OF_EVENTS = 5;
 export default class EventModel {
   #offers = createOffers();
   #events = Array.from({length: NUMBER_OF_EVENTS}, getRandomEvent);
-  #destinations = getMockCityDestinations();
+  #cityDestinations = getMockCityDestinations();
 
   get offers() {
     return this.#offers;
@@ -17,7 +17,7 @@ export default class EventModel {
     return this.#events;
   }
 
-  get destinations() {
-    return this.#destinations;
+  get cityDestinations() {
+    return this.#cityDestinations;
   }
 }

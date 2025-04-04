@@ -1,11 +1,16 @@
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import {FilterTypes} from './const.js';
 
-const DATE_FORMAT = 'D MMM';
 const HOUR_MS = 3600000;
 const DAY_MS = 86400000;
 
-function formatDate(date) {
-  return date ? dayjs(date).format(DATE_FORMAT) : '';
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
+function formatDate(date, type) {
+  return date ? dayjs(date).format(type) : '';
 }
 
 function findDuration(startDate, endDate) {
@@ -28,5 +33,11 @@ function getRandomElement(items) {
   return items[getRandomNumber(0, items.length - 1)];
 }
 
+const filter = {
+  [FilterTypes.EVERYTHING]: (events) => events,
+  [FilterTypes.FUTURE]: (events) => events.filter((event) => dayjs().isBefore(dayjs(event.dateFrom))),
+  [FilterTypes.PRESENT]: (events) => events.filter((event) => dayjs().isSameOrAfter(dayjs(event.dateFrom)) && dayjs().isSameOrBefore(dayjs(event.dateTo))),
+  [FilterTypes.PAST]: (events) => events.filter((event) => dayjs().isAfter(dayjs(event.dateTo)))
+};
 
-export {getRandomElement, getRandomNumber, formatDate, findDuration};
+export {getRandomElement, getRandomNumber, formatDate, findDuration, filter};

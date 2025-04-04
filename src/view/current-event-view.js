@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {formatDate, findDuration} from '../utils.js';
+import {DateTypes} from '../const.js';
 
 function createCurrentEventTemplate(event, allOffers, cityDestinations) {
   const {price, dateFrom, dateTo, cityDestination, isFavorite, offers, type} = event;
@@ -8,16 +9,16 @@ function createCurrentEventTemplate(event, allOffers, cityDestinations) {
 
   return `<li class="trip-events__item">
               <div class="event">
-                <time class="event__date" datetime="2019-03-18">${formatDate(dateFrom)}</time>
+                <time class="event__date" datetime="2019-03-18">${formatDate(dateFrom, DateTypes.MONTH)}</time>
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
                 <h3 class="event__title">${type} ${cityDestinationDescription.name}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="2019-03-18T10:30">${formatDate(dateFrom)}</time>
+                    <time class="event__start-time" datetime="2019-03-18T10:30">${formatDate(dateFrom, DateTypes.TIME)}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="2019-03-18T11:00">${formatDate(dateTo)}</time>
+                    <time class="event__end-time" datetime="2019-03-18T11:00">${formatDate(dateTo, DateTypes.TIME)}</time>
                   </p>
                   <p class="event__duration">${findDuration(dateFrom, dateTo)}</p>
                 </div>
