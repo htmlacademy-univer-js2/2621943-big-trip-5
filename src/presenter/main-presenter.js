@@ -1,5 +1,6 @@
 import CurrentEventView from '../view/current-event-view.js';
 import EventsListView from '../view/events-list-view.js';
+import EmptyEventsListView from '../view/empty-events-list-view.js';
 import FiltersView from '../view/filters-view.js';
 import FormEditorView from '../view/form-editor-view.js';
 import SortView from '../view/sort-view.js';
@@ -21,9 +22,15 @@ export default class MainPresenter {
   init() {
     this.eventsList = [...this.#eventModel.events];
     this.offersList = [...this.#eventModel.offers];
-    this.cityDestinationsList = [...this.#eventModel.destinations];
+    this.cityDestinationsList = [...this.#eventModel.cityDestinations];
 
-    render(new FiltersView(), this.#filterContainer);
+    render(new FiltersView({events: this.eventsList}), this.#filterContainer);
+
+    if (this.eventsList.length === 0) {
+      render(new EmptyEventsListView(), this.#listContainer);
+      return;
+    }
+
     render(new SortView(), this.#listContainer);
     render(this.#eventsComponent, this.#listContainer);
 
