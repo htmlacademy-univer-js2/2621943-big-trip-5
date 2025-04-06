@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {formatDate} from '../utils.js';
-import {ROUTE_POINT_TYPES} from '../const.js';
+import {ROUTE_POINT_TYPES, DateTypes} from '../const.js';
 
 function createFormEditorTemplate(event, allOffers, cityDestinations) {
   const {price, dateFrom, dateTo, cityDestination, offers, type} = event;
@@ -40,10 +40,10 @@ function createFormEditorTemplate(event, allOffers, cityDestinations) {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDate(dateFrom)}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDate(dateFrom, DateTypes.DATE)}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDate(dateTo)}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDate(dateTo, DateTypes.DATE)}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
