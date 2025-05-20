@@ -75,6 +75,42 @@ const mockEvents = [
     ],
     type: getRandomElement(ROUTE_POINT_TYPES)
   },
+  {
+    id: 7,
+    price: 2500,
+    dateFrom: new Date('2024-03-10'),
+    dateTo: new Date('2024-04-07'),
+    cityDestination: getRandomCityDestinationID(),
+    isFavorite: true,
+    offers: [
+      1, 4
+    ],
+    type: getRandomElement(ROUTE_POINT_TYPES)
+  },
+  {
+    id: 8,
+    price: 50,
+    dateFrom: new Date('2024-10-04'),
+    dateTo: new Date('2024-11-05'),
+    cityDestination: getRandomCityDestinationID(),
+    isFavorite: false,
+    offers: [
+      1, 2
+    ],
+    type: getRandomElement(ROUTE_POINT_TYPES)
+  },
+  {
+    id: 9,
+    price: 9000,
+    dateFrom: new Date('2024-01-04'),
+    dateTo: new Date('2024-12-09'),
+    cityDestination: getRandomCityDestinationID(),
+    isFavorite: true,
+    offers: [
+      1, 2, 3, 4
+    ],
+    type: getRandomElement(ROUTE_POINT_TYPES)
+  },
 ];
 
 function getRandomEvent() {

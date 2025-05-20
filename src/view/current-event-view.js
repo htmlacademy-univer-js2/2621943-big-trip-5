@@ -51,26 +51,33 @@ function createCurrentEventTemplate(event, allOffers, cityDestinations) {
 }
 
 export default class CurrentEventView extends AbstractView {
-  #point = null;
+  #routePoint = null;
   #offers = null;
   #cityDestinations = null;
   #editClick = null;
+  #favoriteClick = null;
 
-  constructor({point, offers, cityDestinations, onEditClick}) {
+  constructor({routePoint, offers, cityDestinations, onEditClick, onFavoriteClick}) {
     super();
-    this.#point = point;
+    this.#routePoint = routePoint;
     this.#offers = offers;
     this.#cityDestinations = cityDestinations;
     this.#editClick = onEditClick;
+    this.#favoriteClick = onFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
-    return createCurrentEventTemplate(this.#point, this.#offers, this.#cityDestinations);
+    return createCurrentEventTemplate(this.#routePoint, this.#offers, this.#cityDestinations);
   }
 
   #editClickHandler = () => {
     this.#editClick();
+  };
+
+  #favoriteClickHandler = () => {
+    this.#favoriteClick();
   };
 }

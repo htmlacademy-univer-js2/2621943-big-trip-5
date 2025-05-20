@@ -1,12 +1,15 @@
-import CurrentEventView from '../view/current-event-view.js';
 import EventsListView from '../view/events-list-view.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import FiltersView from '../view/filters-view.js';
-import FormEditorView from '../view/form-editor-view.js';
 import SortView from '../view/sort-view.js';
-import {render, replace} from '../framework/render.js';
+
+import RoutePointPresenter from './route-point-presenter.js';
+
+import {render} from '../framework/render.js';
+import {editListElement} from '../utils.js';
 
 export default class MainPresenter {
+  #routePointsPresenters = new Map();
   #eventsComponent = new EventsListView();
   #listContainer = null;
   #filterContainer = null;
@@ -19,67 +22,54 @@ export default class MainPresenter {
     this.#eventModel = eventModel;
   }
 
+
   init() {
     this.eventsList = [...this.#eventModel.events];
     this.offersList = [...this.#eventModel.offers];
     this.cityDestinationsList = [...this.#eventModel.cityDestinations];
 
-    render(new FiltersView({events: this.eventsList}), this.#filterContainer);
+    this.#renderFilterViews();
 
     if (this.eventsList.length === 0) {
       render(new EmptyEventsListView(), this.#listContainer);
       return;
     }
 
+    this.#renderRoutePoints();
+  }
+
+  #renderFilterViews() {
+    render(new FiltersView({events: this.eventsList}), this.#filterContainer);
+  }
+
+  #renderRoutePoints() {
     render(new SortView(), this.#listContainer);
     render(this.#eventsComponent, this.#listContainer);
 
     for (let i = 0; i < this.eventsList.length; ++i) {
-      this.#renderPoint(this.eventsList[i]);
+      this.#renderRoutePoint(this.eventsList[i]);
     }
   }
 
-  #renderPoint(point) {
-    const onDocumentKeydown = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        switchToPoint();
-        document.removeEventListener('keydown', onDocumentKeydown);
-      }
-    };
-
-    const pointComponent = new CurrentEventView({
-      point,
+  #renderRoutePoint(routePoint) {
+    const routePointPresenter = new RoutePointPresenter({
+      routePointsContainer: this.#eventsComponent.element,
       offers: this.offersList,
       cityDestinations: this.cityDestinationsList,
-      onEditClick: () => {
-        switchToEditForm();
-        document.addEventListener('keydown', onDocumentKeydown);
-      }
+      contentChange: this.#handleRoutePointContentChange,
+      routePointModeChange: this.#handleRoutePointModeChange
     });
 
-    const formEditComponent = new FormEditorView({
-      point,
-      offers: this.offersList,
-      cityDestinations: this.cityDestinationsList,
-      onFormSubmit: () => {
-        switchToPoint();
-        document.removeEventListener('keydown', onDocumentKeydown);
-      },
-      onFormReset: () => {
-        switchToPoint();
-        document.removeEventListener('keydown', onDocumentKeydown);
-      }
-    });
-
-    function switchToEditForm() {
-      replace(formEditComponent, pointComponent);
-    }
-
-    function switchToPoint() {
-      replace(pointComponent, formEditComponent);
-    }
-
-    render(pointComponent, this.#eventsComponent.element);
+    routePointPresenter.init(routePoint);
+    this.#routePointsPresenters.set(routePoint.id, routePointPresenter);
   }
+
+  #handleRoutePointContentChange = (routePoint) => {
+    this.eventsList = editListElement(this.eventsList, routePoint);
+    this.#routePointsPresenters.get(routePoint.id).init(routePoint);
+  };
+
+  #handleRoutePointModeChange = () => {
+    this.#routePointsPresenters.forEach((presenter) => presenter.resetFormView());
+  };
 }
