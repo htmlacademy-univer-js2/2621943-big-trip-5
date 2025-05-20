@@ -33,6 +33,11 @@ function getRandomElement(items) {
   return items[getRandomNumber(0, items.length - 1)];
 }
 
+function editListElement(list, element) {
+  return list.map((elementToEdit) => elementToEdit.id === element.id ? element : elementToEdit);
+}
+
+
 const filter = {
   [FilterTypes.EVERYTHING]: (events) => events,
   [FilterTypes.FUTURE]: (events) => events.filter((event) => dayjs().isBefore(dayjs(event.dateFrom))),
@@ -40,4 +45,4 @@ const filter = {
   [FilterTypes.PAST]: (events) => events.filter((event) => dayjs().isAfter(dayjs(event.dateTo)))
 };
 
-export {getRandomElement, getRandomNumber, formatDate, findDuration, filter};
+export {getRandomElement, getRandomNumber, formatDate, findDuration, editListElement, filter};

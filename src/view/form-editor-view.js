@@ -89,15 +89,15 @@ function createFormEditorTemplate(event, allOffers, cityDestinations) {
 }
 
 export default class FormEditorView extends AbstractView {
-  #point = null;
+  #routePoint = null;
   #offers = null;
   #cityDestinations = null;
   #formSubmit = null;
   #formReset = null;
 
-  constructor({point, offers, cityDestinations, onFormSubmit, onFormReset}) {
+  constructor({routePoint, offers, cityDestinations, onFormSubmit, onFormReset}) {
     super();
-    this.#point = point;
+    this.#routePoint = routePoint;
     this.#offers = offers;
     this.#cityDestinations = cityDestinations;
     this.#formSubmit = onFormSubmit;
@@ -109,7 +109,7 @@ export default class FormEditorView extends AbstractView {
   }
 
   get template() {
-    return createFormEditorTemplate(this.#point, this.#offers, this.#cityDestinations);
+    return createFormEditorTemplate(this.#routePoint, this.#offers, this.#cityDestinations);
   }
 
   #formSubmitHandler = (e) => {
