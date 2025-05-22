@@ -8,9 +8,17 @@ const FilterTypes = {
 };
 
 const DateTypes = {
-  MONTH: 'MMM D',
+  MONTH: 'D MMM',
   TIME: 'HH:mm',
   DATE: 'DD/MM/YY HH:mm'
 };
 
-export {ROUTE_POINT_TYPES, FilterTypes, DateTypes};
+const SortingTypes = {
+  EVENT: 'event',
+  PRICE: 'price',
+  OFFER: 'offer',
+  DAY: 'day',
+  TIME: 'time'
+};
+
+export {ROUTE_POINT_TYPES, FilterTypes, DateTypes, SortingTypes};

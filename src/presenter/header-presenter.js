@@ -1,6 +1,9 @@
 import {RenderPosition, render} from '../framework/render.js';
 import HeaderView from '../view/header-view.js';
 
+import {sortByTypes} from '../utils.js';
+import {SortingTypes} from '../const.js';
+
 export default class HeaderPresenter {
   #container = null;
   #eventModel = null;
@@ -13,11 +16,9 @@ export default class HeaderPresenter {
   init() {
     this.eventsList = [...this.#eventModel.events];
     this.cityDestinationsList = [...this.#eventModel.cityDestinations];
-    render(new HeaderView({events: this.eventsList, cityDestinations: this.#getCityDestinations()}), this.#container, RenderPosition.AFTERBEGIN);
-  }
-
-  #getCityDestinations() {
-    const cityDestinations = this.eventsList.map((event) => event.cityDestination);
-    return this.cityDestinationsList.filter((cityDestination) => cityDestinations.includes(cityDestination.id));
+    render(new HeaderView({
+      routePoints: sortByTypes[SortingTypes.DAY](this.eventsList),
+      cityDestinations: this.cityDestinationsList
+    }), this.#container, RenderPosition.AFTERBEGIN);
   }
 }

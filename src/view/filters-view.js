@@ -29,7 +29,7 @@ function createFiltersTemplate(filters) {
 export default class FilterView extends AbstractView {
   #events = null;
 
-  constructor({events}) {
+  constructor(events) {
     super();
     this.#events = events;
   }

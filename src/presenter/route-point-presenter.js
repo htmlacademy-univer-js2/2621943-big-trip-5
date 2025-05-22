@@ -1,6 +1,7 @@
 import CurrentEventView from '../view/current-event-view.js';
 import FormEditorView from '../view/form-editor-view.js';
 import {render, replace, remove} from '../framework/render.js';
+import {isCurrentKeyEscape} from '../utils.js';
 
 
 const RoutePointModes = {
@@ -40,13 +41,8 @@ export default class RoutePointPresenter {
       offers: this.#offers,
       cityDestinations: this.#cityDestinations,
 
-      onEditClick: () => {
-        this.#replaceRoutePointToEditForm();
-      },
-
-      onFavoriteClick: () => {
-        this.#handleRoutePointContentChange({...this.#routePoint, isFavorite: !this.#routePoint.isFavorite});
-      }
+      onEditClick: this.#editClickHandler,
+      onFavoriteClick: this.#favoriteClickHandler,
     });
 
     this.#routePointEditComponent = new FormEditorView({
@@ -54,15 +50,8 @@ export default class RoutePointPresenter {
       offers: this.#offers,
       cityDestinations: this.#cityDestinations,
 
-      onFormSubmit: () => {
-        this.#replaceEditFormToRoutePoint();
-        document.removeEventListener('keydown', this.#escapeKeydownHandler);
-      },
-
-      onFormReset: () => {
-        this.#replaceEditFormToRoutePoint();
-        document.removeEventListener('keydown', this.#escapeKeydownHandler);
-      }
+      onFormSubmit: this.#formSubmitHandler,
+      onFormReset: this.#formResetHandler,
     });
 
     if (previousRoutePointComponent === null || previousRoutePointEditComponent === null) {
@@ -88,6 +77,11 @@ export default class RoutePointPresenter {
     }
   }
 
+  destroyRoutePoint() {
+    remove(this.#routePointComponent);
+    remove(this.#routePointEditComponent);
+  }
+
   #replaceRoutePointToEditForm() {
     replace(this.#routePointEditComponent, this.#routePointComponent);
     document.addEventListener('keydown', this.#escapeKeydownHandler);
@@ -102,10 +96,28 @@ export default class RoutePointPresenter {
   }
 
   #escapeKeydownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isCurrentKeyEscape(evt)) {
       evt.preventDefault();
       this.#replaceEditFormToRoutePoint();
       document.removeEventListener('keydown', this.#escapeKeydownHandler);
     }
+  };
+
+  #editClickHandler = () => {
+    this.#replaceRoutePointToEditForm();
+  };
+
+  #favoriteClickHandler = () => {
+    this.#handleRoutePointContentChange({...this.#routePoint, isFavorite: !this.#routePoint.isFavorite});
+  };
+
+  #formSubmitHandler = () => {
+    this.#replaceEditFormToRoutePoint();
+    document.removeEventListener('keydown', this.#escapeKeydownHandler);
+  };
+
+  #formResetHandler = () => {
+    this.#replaceEditFormToRoutePoint();
+    document.removeEventListener('keydown', this.#escapeKeydownHandler);
   };
 }

@@ -1,11 +1,16 @@
 import AbstractView from '../framework/view/abstract-view';
+import {formatDate} from '../utils.js';
+import {DateTypes} from '../const.js';
 
-function createHeaderTemplate({price, cityDestinations}) {
+const CITY_DESTINATIONS_FOR_RENDER = 4;
+
+function createHeaderTemplate({price, cityDestinations, routePoints}) {
+  const currentCityDestinations = Array.from(new Set(cityDestinations));
   return (
     `<section class="trip-main__trip-info  trip-info">
        <div class="trip-info__main">
-         <h1 class="trip-info__title">${cityDestinations}</h1>
-         <p class="trip-info__dates">18&nbsp;&mdash;&nbsp;20 Mar</p>
+         <h1 class="trip-info__title">${currentCityDestinations.length > CITY_DESTINATIONS_FOR_RENDER ? `${currentCityDestinations[0]} &mdash;...&mdash; ${currentCityDestinations[currentCityDestinations.length - 1]}` : currentCityDestinations.join(' &mdash; ')}</h1>
+         <p class="trip-info__dates">${formatDate(routePoints[0].dateFrom, DateTypes.MONTH)}&nbsp;&mdash;&nbsp;${formatDate(routePoints[routePoints.length - 1].dateTo, DateTypes.MONTH)}</p>
        </div>
        <p class="trip-info__cost">
          Total: &euro;&nbsp;<span class="trip-info__cost-value">${price}</span>
@@ -15,24 +20,28 @@ function createHeaderTemplate({price, cityDestinations}) {
 }
 
 export default class HeaderView extends AbstractView {
-  #events = null;
+  #routePoints = null;
   #cityDestinations = null;
 
-  constructor({events, cityDestinations}) {
+  constructor({routePoints, cityDestinations}) {
     super();
-    this.#events = events;
+    this.#routePoints = routePoints;
     this.#cityDestinations = cityDestinations;
   }
 
   get template() {
-    return createHeaderTemplate({price: this.#calculatePrice(), cityDestinations: this.#getCityDestinations()});
+    return createHeaderTemplate({
+      price: this.#calculatePrice(),
+      cityDestinations: this.#getCityDestinations(),
+      routePoints: this.#routePoints
+    });
   }
 
   #calculatePrice() {
-    return this.#events.reduce((total, event) => total + event.price, 0);
+    return this.#routePoints.reduce((total, routePoint) => total + routePoint.price, 0);
   }
 
   #getCityDestinations() {
-    return this.#cityDestinations.map((item) => item.name).join(' &mdash; ');
+    return this.#routePoints.map((routePoint) => this.#cityDestinations.find((destination) => destination.id === routePoint.cityDestination).name);
   }
 }
