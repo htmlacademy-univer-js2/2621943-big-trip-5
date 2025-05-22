@@ -6,7 +6,8 @@ import SortView from '../view/sort-view.js';
 import RoutePointPresenter from './route-point-presenter.js';
 
 import {render} from '../framework/render.js';
-import {editListElement} from '../utils.js';
+import {sortByTypes, editListElement} from '../utils.js';
+import {SortingTypes} from '../const.js';
 
 export default class MainPresenter {
   #routePointsPresenters = new Map();
@@ -14,6 +15,7 @@ export default class MainPresenter {
   #listContainer = null;
   #filterContainer = null;
   #eventModel = null;
+  #chosenSortingType = SortingTypes.DAY;
 
 
   constructor(listContainer, filterContainer, eventModel) {
@@ -35,20 +37,31 @@ export default class MainPresenter {
       return;
     }
 
+    this.#renderSortedList();
     this.#renderRoutePoints();
   }
 
   #renderFilterViews() {
-    render(new FiltersView({events: this.eventsList}), this.#filterContainer);
+    render(new FiltersView(this.eventsList), this.#filterContainer);
+  }
+
+  #renderSortedList() {
+    render(new SortView(this.#handleSortingTypeChange), this.#listContainer);
   }
 
   #renderRoutePoints() {
-    render(new SortView(), this.#listContainer);
     render(this.#eventsComponent, this.#listContainer);
+
+    sortByTypes[this.#chosenSortingType](this.eventsList);
 
     for (let i = 0; i < this.eventsList.length; ++i) {
       this.#renderRoutePoint(this.eventsList[i]);
     }
+  }
+
+  #clearRoutePoints() {
+    this.#routePointsPresenters.forEach((presenter) => presenter.destroyRoutePoint());
+    this.#routePointsPresenters.clear();
   }
 
   #renderRoutePoint(routePoint) {
@@ -71,5 +84,16 @@ export default class MainPresenter {
 
   #handleRoutePointModeChange = () => {
     this.#routePointsPresenters.forEach((presenter) => presenter.resetFormView());
+  };
+
+  #handleSortingTypeChange = (evt) => {
+    if (evt.target.closest('input')) {
+      if (this.#chosenSortingType === evt.target.dataset.sortType) {
+        return;
+      }
+      this.#chosenSortingType = evt.target.dataset.sortType;
+      this.#clearRoutePoints();
+      this.#renderRoutePoints();
+    }
   };
 }
