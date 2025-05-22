@@ -1,6 +1,45 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {formatDate} from '../utils.js';
 import {ROUTE_POINT_TYPES, DateTypes} from '../const.js';
+
+function createCurrentOffersTemplate(routePointOffers, currentOffers) {
+  return (
+    routePointOffers.offers.map((offer) => (
+      `<div class="event__offer-selector">
+        <input
+          class="event__offer-checkbox  visually-hidden"
+          id="event-offer-${offer.title}-${offer.id}"
+          type="checkbox"
+          name="event-offer-${offer.title}"
+          data-id="${offer.id}"
+          ${currentOffers.includes(offer.id) ? 'checked' : ''}>
+        <label class="event__offer-label" for="event-offer-${offer.title}-${offer.id}">
+          <span class="event__offer-title">${offer.title}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${offer.price}</span>
+        </label>
+      </div>`
+    )
+    ).join('')
+  );
+}
+
+function createRoutePointsTypesTemplate(currentRoutePointType) {
+  return (
+    ROUTE_POINT_TYPES.map((routePointType) => (
+      `<div class="event__type-item">
+        <input
+          id="event-type-${routePointType}-1"
+          class="event__type-input  visually-hidden"
+          type="radio"
+          name="event-type"
+          value="${routePointType}"
+          ${routePointType === currentRoutePointType ? 'checked' : ''}>
+        <label class="event__type-label  event__type-label--${routePointType}" for="event-type-${routePointType}-1">${routePointType}</label>
+      </div>`
+    )).join('')
+  );
+}
 
 function createFormEditorTemplate(event, allOffers, cityDestinations) {
   const {price, dateFrom, dateTo, cityDestination, offers, type} = event;
@@ -21,9 +60,7 @@ function createFormEditorTemplate(event, allOffers, cityDestinations) {
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-                            ${ROUTE_POINT_TYPES.map((eventType) => (`<div class="event__type-item">
-                                          <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${eventType === type ? 'checked' : ''}>
-                                          <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label></div>`)).join('')}
+                        ${createRoutePointsTypesTemplate(type)}
                       </fieldset>
                     </div>
                   </div>
@@ -64,14 +101,7 @@ function createFormEditorTemplate(event, allOffers, cityDestinations) {
                   <section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">
-                        ${eventTypeOffers.offers.map((offer) => (`<div class="event__offer-selector">
-                                <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" type="checkbox" name="event-offer-luggage" ${offers.includes(offer.id) ? 'checked' : ''}>
-                                <label class="event__offer-label" for="event-offer-luggage-${offer.id}">
-                                  <span class="event__offer-title">${offer.title}</span>
-                                  &plus;&euro;&nbsp;
-                                  <span class="event__offer-price">${offer.price}</span>
-                            </label>
-                          </div>`)).join('')}
+                        ${createCurrentOffersTemplate(eventTypeOffers, offers)}
                     </div>
                   </section>
                   <section class="event__section  event__section--destination">
@@ -88,8 +118,7 @@ function createFormEditorTemplate(event, allOffers, cityDestinations) {
             </li>`;
 }
 
-export default class FormEditorView extends AbstractView {
-  #routePoint = null;
+export default class FormEditorView extends AbstractStatefulView {
   #offers = null;
   #cityDestinations = null;
   #formSubmit = null;
@@ -97,27 +126,69 @@ export default class FormEditorView extends AbstractView {
 
   constructor({routePoint, offers, cityDestinations, onFormSubmit, onFormReset}) {
     super();
-    this.#routePoint = routePoint;
+    this._setState(routePoint);
     this.#offers = offers;
     this.#cityDestinations = cityDestinations;
     this.#formSubmit = onFormSubmit;
     this.#formReset = onFormReset;
 
-    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('form').addEventListener('reset', this.#formResetHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formResetHandler);
+    this._restoreHandlers();
   }
 
   get template() {
-    return createFormEditorTemplate(this.#routePoint, this.#offers, this.#cityDestinations);
+    return createFormEditorTemplate(this._state, this.#offers, this.#cityDestinations);
   }
 
-  #formSubmitHandler = (e) => {
-    e.preventDefault();
-    this.#formSubmit();
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#formSubmit(this._state);
   };
 
   #formResetHandler = () => {
     this.#formReset();
   };
+
+  #chosenRoutePointTypeHandler = (evt) => {
+    if (evt.target.closest('input')) {
+      this.updateElement({
+        type: evt.target.value,
+        offers: []
+      });
+    }
+  };
+
+  #chosenOffersHandler = (evt) => {
+    if (evt.target.checked) {
+      this._setState({
+        offers: [...this._state.offers, parseInt(evt.target.dataset.id, 10)]
+      });
+    }
+  };
+
+  #chosenCityDestinationHandler = (evt) => {
+    const newCityDestination = this.#cityDestinations.find((cityDestination) => cityDestination.name === evt.target.value);
+    this.updateElement({
+      cityDestination: newCityDestination.id
+    });
+  };
+
+  #chosenPriceHandler = (evt) => {
+    this._setState({
+      price: evt.target.value
+    });
+  };
+
+  reset(routePoint) {
+    this.updateElement(routePoint);
+  }
+
+  _restoreHandlers() {
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('form').addEventListener('reset', this.#formResetHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formResetHandler);
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#chosenRoutePointTypeHandler);
+    this.element.querySelector('.event__available-offers').addEventListener('change', this.#chosenOffersHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#chosenCityDestinationHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#chosenPriceHandler);
+  }
 }

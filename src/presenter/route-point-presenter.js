@@ -73,6 +73,7 @@ export default class RoutePointPresenter {
 
   resetFormView() {
     if (this.#currentMode !== RoutePointModes.SHOW) {
+      this.#routePointEditComponent.reset(this.#routePoint);
       this.#replaceEditFormToRoutePoint();
     }
   }
@@ -98,6 +99,7 @@ export default class RoutePointPresenter {
   #escapeKeydownHandler = (evt) => {
     if (isCurrentKeyEscape(evt)) {
       evt.preventDefault();
+      this.#routePointEditComponent.reset(this.#routePoint);
       this.#replaceEditFormToRoutePoint();
       document.removeEventListener('keydown', this.#escapeKeydownHandler);
     }
@@ -111,12 +113,14 @@ export default class RoutePointPresenter {
     this.#handleRoutePointContentChange({...this.#routePoint, isFavorite: !this.#routePoint.isFavorite});
   };
 
-  #formSubmitHandler = () => {
+  #formSubmitHandler = (routePoint) => {
+    this.#handleRoutePointContentChange(routePoint);
     this.#replaceEditFormToRoutePoint();
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
   };
 
   #formResetHandler = () => {
+    this.#routePointEditComponent.reset(this.#routePoint);
     this.#replaceEditFormToRoutePoint();
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
   };
