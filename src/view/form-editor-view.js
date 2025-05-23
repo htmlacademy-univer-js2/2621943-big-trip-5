@@ -7,7 +7,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 function createCurrentOffersTemplate(routePointOffers, currentOffers) {
   return (
     routePointOffers.offers.map((offer) => (
-        `<div class="event__offer-selector">
+      `<div class="event__offer-selector">
         <input
           class="event__offer-checkbox  visually-hidden"
           id="event-offer-${offer.title}-${offer.id}"
@@ -21,7 +21,7 @@ function createCurrentOffersTemplate(routePointOffers, currentOffers) {
           <span class="event__offer-price">${offer.price}</span>
         </label>
       </div>`
-      )
+    )
     ).join('')
   );
 }
