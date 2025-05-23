@@ -10,7 +10,7 @@ const FilterTypes = {
 const DateTypes = {
   MONTH: 'D MMM',
   TIME: 'HH:mm',
-  DATE: 'DD/MM/YY HH:mm'
+  DATE: 'd/m/y H:i'
 };
 
 const SortingTypes = {

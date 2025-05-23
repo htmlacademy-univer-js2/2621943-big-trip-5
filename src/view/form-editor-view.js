@@ -1,11 +1,13 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {formatDate} from '../utils.js';
 import {ROUTE_POINT_TYPES, DateTypes} from '../const.js';
+
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createCurrentOffersTemplate(routePointOffers, currentOffers) {
   return (
     routePointOffers.offers.map((offer) => (
-      `<div class="event__offer-selector">
+        `<div class="event__offer-selector">
         <input
           class="event__offer-checkbox  visually-hidden"
           id="event-offer-${offer.title}-${offer.id}"
@@ -19,7 +21,7 @@ function createCurrentOffersTemplate(routePointOffers, currentOffers) {
           <span class="event__offer-price">${offer.price}</span>
         </label>
       </div>`
-    )
+      )
     ).join('')
   );
 }
@@ -77,10 +79,10 @@ function createFormEditorTemplate(event, allOffers, cityDestinations) {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDate(dateFrom, DateTypes.DATE)}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDate(dateTo, DateTypes.DATE)}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -123,6 +125,8 @@ export default class FormEditorView extends AbstractStatefulView {
   #cityDestinations = null;
   #formSubmit = null;
   #formReset = null;
+  #dateFrom = null;
+  #dateTo = null;
 
   constructor({routePoint, offers, cityDestinations, onFormSubmit, onFormReset}) {
     super();
@@ -137,6 +141,19 @@ export default class FormEditorView extends AbstractStatefulView {
 
   get template() {
     return createFormEditorTemplate(this._state, this.#offers, this.#cityDestinations);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#dateFrom) {
+      this.#dateFrom.destroy();
+      this.#dateFrom = null;
+    }
+    if (this.#dateTo) {
+      this.#dateTo.destroy();
+      this.#dateTo = null;
+    }
   }
 
   #formSubmitHandler = (evt) => {
@@ -178,6 +195,43 @@ export default class FormEditorView extends AbstractStatefulView {
     });
   };
 
+  #chosenDateFromHandler = ([chosenDate]) => {
+    this.updateElement({
+      dateFrom: chosenDate
+    });
+  };
+
+  #chosenDateToHandler = ([chosenDate]) => {
+    this.updateElement({
+      dateTo: chosenDate
+    });
+  };
+
+  #setDates() {
+    this.#dateFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: DateTypes.DATE,
+        enableTime: true,
+        'time_24hr': true,
+        defaultDate: this._state.dateFrom,
+        maxDate: this._state.dateTo,
+        onChange: this.#chosenDateFromHandler
+      },
+    );
+    this.#dateTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: DateTypes.DATE,
+        enableTime: true,
+        'time_24hr': true,
+        defaultDate: this._state.dateTo,
+        minDate: this._state.dateFrom,
+        onChange: this.#chosenDateToHandler
+      },
+    );
+  }
+
   reset(routePoint) {
     this.updateElement(routePoint);
   }
@@ -190,5 +244,6 @@ export default class FormEditorView extends AbstractStatefulView {
     this.element.querySelector('.event__available-offers').addEventListener('change', this.#chosenOffersHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#chosenCityDestinationHandler);
     this.element.querySelector('.event__input--price').addEventListener('input', this.#chosenPriceHandler);
+    this.#setDates();
   }
 }
