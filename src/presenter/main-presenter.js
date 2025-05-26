@@ -10,10 +10,12 @@ import NewRoutePointPresenter from './new-route-point-presenter.js';
 
 import {remove, render} from '../framework/render.js';
 import {sortByTypes, filter} from '../utils.js';
-import {SortingTypes, FilterEventsCaptions, FilterTypes, ActionTypes, UserActionTypes} from '../const.js';
+import {SortingTypes, FilterEventsCaptions, FilterTypes, ActionTypes, UserActionTypes, TimeLimits} from '../const.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 export default class MainPresenter {
   #routePointPresenters = new Map();
+  #newRoutePointPresenter = null;
 
   #eventsComponent = new EventsListView();
   #captionsComponent = null;
@@ -32,6 +34,10 @@ export default class MainPresenter {
 
   #chosenSortingType = SortingTypes.DAY;
   #isContentLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimits.LOWER_BOUND,
+    upperLimit: TimeLimits.UPPER_BOUND,
+  });
 
 
   constructor(listContainer, buttonContainer, eventModel, offerModel, cityDestinationModel, filterModel) {
@@ -130,21 +136,41 @@ export default class MainPresenter {
     remove(this.#contentLoadingComponent);
     remove(this.#contentLoadingErrorComponent);
     remove(this.#sortingComponent);
+    if (this.#newRoutePointPresenter) {
+      this.#newRoutePointPresenter.destroy();
+    }
     this.#clearEvents();
   }
 
-  #handleUserActions = (userActionType, actionType, update) => {
+  #handleUserActions = async (userActionType, actionType, update) => {
+    this.#uiBlocker.block();
     switch (userActionType) {
       case UserActionTypes.ADD_EVENT:
-        this.#eventModel.add(actionType, update);
+        this.#newRoutePointPresenter.setServerSaving();
+        try {
+          await this.#eventModel.add(actionType, update);
+        } catch(error) {
+          this.#newRoutePointPresenter.setServerAborting();
+        }
         break;
       case UserActionTypes.UPDATE_EVENT:
-        this.#eventModel.update(actionType, update);
+        this.#routePointPresenters.get(update.id).setServerSaving();
+        try {
+          await this.#eventModel.update(actionType, update);
+        } catch(error) {
+          this.#routePointPresenters.get(update.id).setServerAborting();
+        }
         break;
       case UserActionTypes.DELETE_EVENT:
-        this.#eventModel.remove(actionType, update);
+        this.#routePointPresenters.get(update.id).setServerDeleting();
+        try {
+          await this.#eventModel.remove(actionType, update);
+        } catch(error) {
+          this.#routePointPresenters.get(update.id).setServerAborting();
+        }
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
   #handleGeneralActions = (actionType, data) => {
@@ -166,6 +192,7 @@ export default class MainPresenter {
         this.#isContentLoading = false;
         remove(this.#contentLoadingComponent);
         this.#renderContentLoadingErrorComponent();
+        this.#renderAddEventButtonComponent();
         break;
     }
   };
@@ -187,7 +214,7 @@ export default class MainPresenter {
 
   #handleCreatingEventClick = () => {
     this.#addEventButtonComponent.element.disabled = true;
-    const newRoutePointPresenter = new NewRoutePointPresenter({
+    this.#newRoutePointPresenter = new NewRoutePointPresenter({
       routePointContainer: this.#eventsComponent.element,
       offers: this.offers,
       cityDestinations: this.cityDestinations,
@@ -196,7 +223,7 @@ export default class MainPresenter {
     });
     this.#chosenSortingType = SortingTypes.DAY;
     this.#filterModel.setToCurrent(ActionTypes.MAJOR, FilterTypes.EVERYTHING);
-    newRoutePointPresenter.init();
+    this.#newRoutePointPresenter.init();
   };
 
   #handleClosingCreatingEventForm = () => {

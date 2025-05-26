@@ -65,7 +65,8 @@ export default class RoutePointPresenter {
     }
 
     if (this.#currentMode === RoutePointModes.EDIT) {
-      replace(this.#routePointEditComponent, previousRoutePointEditComponent);
+      replace(this.#routePointComponent, previousRoutePointEditComponent);
+      this.#currentMode = RoutePointModes.SHOW;
     }
 
     remove(previousRoutePointComponent);
@@ -123,7 +124,6 @@ export default class RoutePointPresenter {
 
   #formSubmitHandler = (routePoint) => {
     this.#handleRoutePointContentChange(UserActionTypes.UPDATE_EVENT, ActionTypes.PATCH, routePoint);
-    this.#replaceEditFormToRoutePoint();
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
   };
 
@@ -132,4 +132,35 @@ export default class RoutePointPresenter {
     this.#replaceEditFormToRoutePoint();
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
   };
+
+  setServerSaving() {
+    if (this.#currentMode === RoutePointModes.EDIT) {
+      this.#routePointEditComponent.updateElement({
+        isSaving: true
+      });
+    }
+  }
+
+  setServerDeleting() {
+    if (this.#currentMode === RoutePointModes.EDIT) {
+      this.#routePointEditComponent.updateElement({
+        isDeleting: true
+      });
+    }
+  }
+
+  setServerAborting() {
+    if (this.#currentMode === RoutePointModes.SHOW) {
+      this.#routePointComponent.shake();
+      return;
+    }
+    const resetFormState = () => {
+      this.#routePointEditComponent.updateElement({
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this.#routePointEditComponent.shake(resetFormState);
+  }
 }

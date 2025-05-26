@@ -1,6 +1,5 @@
 import {RenderPosition, remove, render} from '../framework/render.js';
 import {ActionTypes, UserActionTypes} from '../const.js';
-import {getRandomNumber} from '../utils.js';
 import FormCreationView from '../view/form-creation-view.js';
 
 
@@ -31,12 +30,30 @@ export default class NewRoutePointPresenter {
   }
 
   #handleFormSubmit = (routePoint) => {
-    this.#handleRoutePointContentChange(UserActionTypes.ADD_EVENT, ActionTypes.MAJOR, {id: getRandomNumber(), ...routePoint});
-    this.#closeForm();
+    this.#handleRoutePointContentChange(UserActionTypes.ADD_EVENT, ActionTypes.MAJOR, routePoint);
   };
 
   #closeForm = () => {
     remove(this.#formComponent);
     this.#handleFormReset();
   };
+
+  setServerSaving() {
+    this.#formComponent.updateElement({
+      isSaving: true
+    });
+  }
+
+  setServerAborting() {
+    const resetFormState = () => {
+      this.#formComponent.updateElement({
+        isSaving: false
+      });
+    };
+    this.#formComponent.shake(resetFormState);
+  }
+
+  destroy() {
+    this.#closeForm();
+  }
 }

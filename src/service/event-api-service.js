@@ -19,6 +19,24 @@ export default class EventApiService extends ApiService {
       .then(ApiService.parseResponse);
   }
 
+  async addEvent(point) {
+    const response = await this._load({
+      url: 'points',
+      method: HttpMethods.POST,
+      body: JSON.stringify(this.#adaptToServer(point)),
+      headers: new Headers({'Content-Type': 'application/json'})
+    });
+
+    return await ApiService.parseResponse(response);
+  }
+
+  async deleteEvent(point) {
+    return await this._load({
+      url: `points/${point.id}`,
+      method: HttpMethods.DELETE,
+    });
+  }
+
   async updateEvent(point) {
     const response = await this._load({
       url: `points/${point.id}`,

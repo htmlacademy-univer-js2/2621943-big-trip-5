@@ -41,12 +41,31 @@ const ActionTypes = {
 const UserActionTypes = {
   ADD_EVENT: 'ADD_EVENT',
   DELETE_EVENT: 'DELETE_EVENT',
-  UPDATE_EVENT: 'UPDATE_EVENT',
+  UPDATE_EVENT: 'UPDATE_EVENT'
 };
 
 const HttpMethods = {
   GET: 'GET',
-  PUT: 'PUT'
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE'
 };
 
-export {ROUTE_POINT_TYPES, AUTHORIZATION, SERVER_ADDRESS, FilterTypes, FilterEventsCaptions, DateTypes, SortingTypes, ActionTypes, UserActionTypes, HttpMethods};
+const TimeLimits = {
+  LOWER_BOUND: 350,
+  UPPER_BOUND: 1000
+};
+
+export {
+  ROUTE_POINT_TYPES,
+  AUTHORIZATION,
+  SERVER_ADDRESS,
+  FilterTypes,
+  FilterEventsCaptions,
+  DateTypes,
+  SortingTypes,
+  ActionTypes,
+  UserActionTypes,
+  HttpMethods,
+  TimeLimits
+};
