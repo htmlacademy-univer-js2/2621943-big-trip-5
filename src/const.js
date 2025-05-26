@@ -1,5 +1,8 @@
 const ROUTE_POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
+const AUTHORIZATION = 'Basic q7x4b29vd8k1msa';
+const SERVER_ADDRESS = 'https://24.objects.htmlacademy.pro/big-trip';
+
 const FilterTypes = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
@@ -30,7 +33,9 @@ const SortingTypes = {
 
 const ActionTypes = {
   MAJOR: 'MAJOR',
-  PATCH: 'PATCH'
+  PATCH: 'PATCH',
+  INIT: 'INIT',
+  ERROR: 'ERROR'
 };
 
 const UserActionTypes = {
@@ -39,4 +44,9 @@ const UserActionTypes = {
   UPDATE_EVENT: 'UPDATE_EVENT',
 };
 
-export {ROUTE_POINT_TYPES, FilterTypes, FilterEventsCaptions, DateTypes, SortingTypes, ActionTypes, UserActionTypes};
+const HttpMethods = {
+  GET: 'GET',
+  PUT: 'PUT'
+};
+
+export {ROUTE_POINT_TYPES, AUTHORIZATION, SERVER_ADDRESS, FilterTypes, FilterEventsCaptions, DateTypes, SortingTypes, ActionTypes, UserActionTypes, HttpMethods};

@@ -1,8 +1,19 @@
 import Observable from '../framework/observable.js';
-import { getMockCityDestinations } from '../mock/city-destination.js';
 
 export default class CityDestinationModel extends Observable {
-  #cityDestinations = getMockCityDestinations();
+  #eventApiService = null;
+  #cityDestinations = [];
+
+  constructor({eventApiService}) {
+    super();
+    this.#eventApiService = eventApiService;
+  }
+
+  init() {
+    this.#eventApiService.cityDestinations.then((cityDestinations) => {
+      this.#cityDestinations = cityDestinations;
+    });
+  }
 
   get cityDestinations() {
     return this.#cityDestinations;

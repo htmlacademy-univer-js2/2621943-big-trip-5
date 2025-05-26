@@ -2,6 +2,8 @@ import EventsListView from '../view/events-list-view.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import SortView from '../view/sort-view.js';
 import NewEventView from '../view/new-event-view.js';
+import ContentLoadingView from '../view/content-loading-view.js';
+import ContentLoadingErrorView from '../view/content-loading-error-view.js';
 
 import RoutePointPresenter from './route-point-presenter.js';
 import NewRoutePointPresenter from './new-route-point-presenter.js';
@@ -17,6 +19,8 @@ export default class MainPresenter {
   #captionsComponent = null;
   #sortingComponent = null;
   #addEventButtonComponent = null;
+  #contentLoadingComponent = new ContentLoadingView();
+  #contentLoadingErrorComponent = new ContentLoadingErrorView();
 
   #listContainer = null;
   #eventButtonContainer = null;
@@ -27,6 +31,7 @@ export default class MainPresenter {
   #filterModel = null;
 
   #chosenSortingType = SortingTypes.DAY;
+  #isContentLoading = true;
 
 
   constructor(listContainer, buttonContainer, eventModel, offerModel, cityDestinationModel, filterModel) {
@@ -55,11 +60,13 @@ export default class MainPresenter {
     return this.#cityDestinationModel.cityDestinations;
   }
 
-
   init() {
+    this.#renderRoutePointsListToShow();
+  }
+
+  #renderAddEventButtonComponent() {
     this.#addEventButtonComponent = new NewEventView({onNewEventClick: this.#handleCreatingEventClick});
     render(this.#addEventButtonComponent, this.#eventButtonContainer);
-    this.#renderRoutePointsListToShow();
   }
 
   #renderSortingList() {
@@ -86,11 +93,21 @@ export default class MainPresenter {
     }
   }
 
-  #renderRoutePointsListToShow() {
+  #renderRoutePointsListToShow({isSortingTypeUnselected = false} = {}) {
+    if (this.#isContentLoading) {
+      render(this.#contentLoadingComponent, this.#listContainer);
+      return;
+    }
+
     if (this.events.length === 0) {
       this.#renderEmptyEventsListComponent();
       return;
     }
+
+    if (isSortingTypeUnselected) {
+      this.#chosenSortingType = SortingTypes.DAY;
+    }
+
     this.#renderSortingList();
     this.#renderRoutePoints();
   }
@@ -100,12 +117,18 @@ export default class MainPresenter {
     render(this.#captionsComponent, this.#listContainer);
   }
 
+  #renderContentLoadingErrorComponent() {
+    render(this.#contentLoadingErrorComponent, this.#listContainer);
+  }
+
   #clearEvents() {
     this.#routePointPresenters.forEach((presenter) => presenter.destroyRoutePoint());
   }
 
   #clearEventsListToShow() {
     remove(this.#captionsComponent);
+    remove(this.#contentLoadingComponent);
+    remove(this.#contentLoadingErrorComponent);
     remove(this.#sortingComponent);
     this.#clearEvents();
   }
@@ -132,6 +155,17 @@ export default class MainPresenter {
       case ActionTypes.MAJOR:
         this.#clearEventsListToShow();
         this.#renderRoutePointsListToShow();
+        break;
+      case ActionTypes.INIT:
+        this.#isContentLoading = false;
+        remove(this.#contentLoadingComponent);
+        this.#renderRoutePointsListToShow();
+        this.#renderAddEventButtonComponent();
+        break;
+      case ActionTypes.ERROR:
+        this.#isContentLoading = false;
+        remove(this.#contentLoadingComponent);
+        this.#renderContentLoadingErrorComponent();
         break;
     }
   };
