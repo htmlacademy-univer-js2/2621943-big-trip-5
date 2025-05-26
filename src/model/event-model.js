@@ -46,13 +46,18 @@ export default class EventModel extends Observable {
     return adaptedPoint;
   }
 
-  add(actionType, newEvent) {
-    this.#events = [
-      newEvent,
-      ...this.#events
-    ];
-
-    this._notify(actionType, newEvent);
+  async add(actionType, newEvent) {
+    try {
+      const response = await this.#eventApiService.addEvent(newEvent);
+      const currentEvent = this.#adaptToClient(response);
+      this.#events = [
+        currentEvent,
+        ...this.#events
+      ];
+      this._notify(actionType, currentEvent);
+    } catch(error) {
+      throw new Error('Can\'t add event');
+    }
   }
 
   async update(actionType, updateItem) {
@@ -76,18 +81,22 @@ export default class EventModel extends Observable {
     }
   }
 
-  remove(actionType, eventToRemove) {
+  async remove(actionType, eventToRemove) {
     const index = this.#events.findIndex((event) => event.id === eventToRemove.id);
     if (index === -1) {
       throw new Error('Can\'t delete unexisting event');
     }
 
-    this.#events = [
-      ...this.#events.slice(0, index),
-      ...this.#events.slice(index + 1),
-    ];
-
-    this._notify(actionType);
+    try {
+      await this.#eventApiService.deleteEvent(eventToRemove);
+      this.#events = [
+        ...this.#events.slice(0, index),
+        ...this.#events.slice(index + 1),
+      ];
+      this._notify(actionType);
+    } catch(error) {
+      throw new Error('Can\'t delete event');
+    }
   }
 
   get events() {

@@ -30,11 +30,6 @@ function findDuration(startDate, endDate, containsMilliseconds = false) {
   return dayjs(duration).format(timeFormat);
 }
 
-function getRandomNumber(min = 1, max = 100) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-
 function isCurrentKeyEscape(evt) {
   return evt.key === 'Escape';
 }
@@ -54,7 +49,6 @@ const filter = {
 };
 
 export {
-  getRandomNumber,
   formatDate,
   findDuration,
   isCurrentKeyEscape,

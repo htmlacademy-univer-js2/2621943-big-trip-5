@@ -89,7 +89,7 @@ function createChoosingDestinationTemplate(cityDestination) {
 }
 
 function createRoutePointCreationFormTemplate(routePoint, allOffers, cityDestinations) {
-  const {price, dateFrom, dateTo, destination, offers, type} = routePoint;
+  const {price, dateFrom, dateTo, destination, offers, type, isServerSaving} = routePoint;
 
   const currentDestination = cityDestinations.find((item) => item.id === destination);
 
@@ -140,7 +140,7 @@ function createRoutePointCreationFormTemplate(routePoint, allOffers, cityDestina
             <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit">${isServerSaving ? 'Saving...' : 'Save'}</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
 
         </header>
@@ -164,7 +164,7 @@ export default class FormCreationView extends AbstractStatefulView {
 
   constructor({offers, cityDestinations, onFormSubmit, onFormReset}) {
     super();
-    this._setState(EMPTY_ROUTE_POINT);
+    this._setState({...EMPTY_ROUTE_POINT, isServerSaving: false});
     this.#offers = offers;
     this.#cityDestinations = cityDestinations;
     this.#formSubmit = onFormSubmit;
@@ -192,6 +192,7 @@ export default class FormCreationView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+    delete this._state.isServerSaving;
     this.#formSubmit(this._state);
   };
 
@@ -211,7 +212,7 @@ export default class FormCreationView extends AbstractStatefulView {
   #chosenOffersHandler = (evt) => {
     if (evt.target.checked) {
       this._setState({
-        offers: [...this._state.offers, parseInt(evt.target.dataset.id, 10)]
+        offers: [...this._state.offers, evt.target.dataset.id]
       });
     }
   };
@@ -225,7 +226,7 @@ export default class FormCreationView extends AbstractStatefulView {
 
   #chosenPriceHandler = (evt) => {
     this._setState({
-      price: evt.target.value
+      price: parseInt(evt.target.value, 10)
     });
   };
 
@@ -248,7 +249,8 @@ export default class FormCreationView extends AbstractStatefulView {
         dateFormat: DateTypes.DATE,
         enableTime: true,
         'time_24hr': true,
-        defaultDate: this._state.dateFrom || 'today',
+        defaultDate: this._state.dateFrom || '',
+        minDate: 'today',
         maxDate: this._state.dateTo,
         onChange: this.#chosenDateFromHandler
       },
@@ -274,7 +276,7 @@ export default class FormCreationView extends AbstractStatefulView {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formResetHandler);
     this.element.querySelector('.event__type-group').addEventListener('click', this.#chosenRoutePointTypeHandler);
-    this.element.querySelector('.event__available-offers').addEventListener('change', this.#chosenOffersHandler);
+    this.element.querySelector('.event__available-offers').addEventListener('click', this.#chosenOffersHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#chosenCityDestinationHandler);
     this.element.querySelector('.event__input--price').addEventListener('input', this.#chosenPriceHandler);
     this.#setDates();

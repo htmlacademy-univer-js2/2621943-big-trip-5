@@ -45,7 +45,7 @@ function createRoutePointsTypesTemplate(currentRoutePointType) {
 }
 
 function createEditFormTemplate(event, allOffers, cityDestinations) {
-  const {price, dateFrom, dateTo, cityDestination, offers, type} = event;
+  const {price, dateFrom, dateTo, cityDestination, offers, type, isServerSaving, isServerDeleting} = event;
   const eventTypeOffers = allOffers.find((offer) => offer.type === type);
   const cityDestinationDescription = cityDestinations.find((destination) => destination.id === cityDestination);
   const renderCityDestinations = cityDestinations.map((destination) => `<option value="${destination.name}"></option>`).join('');
@@ -94,8 +94,8 @@ function createEditFormTemplate(event, allOffers, cityDestinations) {
                     <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isServerSaving ? 'Saving...' : 'Save'}</button>
+                  <button class="event__reset-btn" type="reset">${isServerDeleting ? 'Deleting...' : 'Delete'}</button>
                   <button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                   </button>
@@ -132,7 +132,7 @@ export default class FormEditorView extends AbstractStatefulView {
 
   constructor({routePoint, offers, cityDestinations, onFormSubmit, onFormReset, onDeleteClick}) {
     super();
-    this._setState(routePoint);
+    this._setState({...routePoint, isServerSaving: false, isServerDeleting: false});
     this.#offers = offers;
     this.#cityDestinations = cityDestinations;
     this.#formSubmit = onFormSubmit;
@@ -161,6 +161,8 @@ export default class FormEditorView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+    delete this._state.isServerDeleting;
+    delete this._state.isServerSaving;
     this.#formSubmit(this._state);
   };
 
@@ -183,7 +185,7 @@ export default class FormEditorView extends AbstractStatefulView {
   };
 
   #chosenOffersHandler = (evt) => {
-    const offerId = parseInt(evt.target.dataset.id, 10);
+    const offerId = evt.target.dataset.id;
     const currentOffers = this._state.offers;
 
     if (evt.target.checked) {
@@ -199,7 +201,7 @@ export default class FormEditorView extends AbstractStatefulView {
 
   #chosenPriceHandler = (evt) => {
     this._setState({
-      price: evt.target.value
+      price: parseInt(evt.target.value, 10)
     });
   };
 
@@ -257,7 +259,7 @@ export default class FormEditorView extends AbstractStatefulView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formResetHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteRoutePointHandler);
     this.element.querySelector('.event__type-group').addEventListener('click', this.#chosenRoutePointTypeHandler);
-    this.element.querySelector('.event__available-offers').addEventListener('change', this.#chosenOffersHandler);
+    this.element.querySelector('.event__available-offers').addEventListener('click', this.#chosenOffersHandler);
     this.element.querySelector('.event__input--price').addEventListener('input', this.#chosenPriceHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#chosenCityDestinationHandler);
     this.#setDates();
