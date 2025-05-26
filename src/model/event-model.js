@@ -1,54 +1,82 @@
-import {getRandomEvent} from '../mock/event.js';
 import Observable from '../framework/observable.js';
-
-const NUMBER_OF_EVENTS = 5;
+import {ActionTypes} from '../const.js';
 
 export default class EventModel extends Observable {
   #events = [];
+  #offerModel = null;
+  #cityDestinationModel = null;
+  #eventApiService = null;
 
-  constructor() {
+  constructor({eventApiService, offerModel, cityDestinationModel}) {
     super();
-    this.#generateEvents();
+    this.#eventApiService = eventApiService;
+    this.#offerModel = offerModel;
+    this.#cityDestinationModel = cityDestinationModel;
   }
 
-  #generateEvents() {
-    const usedIds = new Set();
+  async init() {
+    try {
+      await Promise.all([
+        this.#offerModel.init(),
+        this.#cityDestinationModel.init()
+      ]);
+      const events = await this.#eventApiService.events;
+      this.#events = events.map(this.#adaptToClient);
+      this._notify(ActionTypes.INIT);
 
-    while (this.#events.length < NUMBER_OF_EVENTS) {
-      const newEvent = getRandomEvent();
-
-      if (!usedIds.has(newEvent.id)) {
-        usedIds.add(newEvent.id);
-        this.#events.push(newEvent);
-      }
+    } catch(error) {
+      this.#events = [];
+      this._notify(ActionTypes.ERROR);
     }
   }
 
-  add(updateType, newEvent) {
+  #adaptToClient(point) {
+    const adaptedPoint = {...point,
+      price: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite']
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
+  }
+
+  add(actionType, newEvent) {
     this.#events = [
       newEvent,
       ...this.#events
     ];
 
-    this._notify(updateType, newEvent);
+    this._notify(actionType, newEvent);
   }
 
-  update(updateType, eventToUpdate) {
-    const index = this.#events.findIndex((event) => event.id === eventToUpdate.id);
+  async update(actionType, updateItem) {
+    const index = this.#events.findIndex((event) => event.id === updateItem.id);
+
     if (index === -1) {
       throw new Error('Can\'t update unexisting event');
     }
 
-    this.#events = [
-      ...this.#events.slice(0, index),
-      eventToUpdate,
-      ...this.#events.slice(index + 1),
-    ];
-
-    this._notify(updateType, eventToUpdate);
+    try {
+      const response = await this.#eventApiService.updateEvent(updateItem);
+      const editedEvent = this.#adaptToClient(response);
+      this.#events = [
+        ...this.#events.slice(0, index),
+        editedEvent,
+        ...this.#events.slice(index + 1),
+      ];
+      this._notify(actionType, editedEvent);
+    } catch(error) {
+      throw new Error('Can\'t update event');
+    }
   }
 
-  remove(updateType, eventToRemove) {
+  remove(actionType, eventToRemove) {
     const index = this.#events.findIndex((event) => event.id === eventToRemove.id);
     if (index === -1) {
       throw new Error('Can\'t delete unexisting event');
@@ -59,7 +87,7 @@ export default class EventModel extends Observable {
       ...this.#events.slice(index + 1),
     ];
 
-    this._notify(updateType);
+    this._notify(actionType);
   }
 
   get events() {

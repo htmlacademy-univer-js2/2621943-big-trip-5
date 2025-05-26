@@ -34,9 +34,6 @@ function getRandomNumber(min = 1, max = 100) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getRandomElement(items) {
-  return items[getRandomNumber(0, items.length - 1)];
-}
 
 function isCurrentKeyEscape(evt) {
   return evt.key === 'Escape';
@@ -57,7 +54,6 @@ const filter = {
 };
 
 export {
-  getRandomElement,
   getRandomNumber,
   formatDate,
   findDuration,
