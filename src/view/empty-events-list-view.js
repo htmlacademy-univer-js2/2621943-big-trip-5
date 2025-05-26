@@ -1,13 +1,20 @@
 import AbstractView from '../framework/view/abstract-view';
 
-function createEmptyEventsListTemplate() {
+function createEmptyEventsListTemplate(caption) {
   return (
-    '<p class="trip-events__msg">Click New Event to create your first point</p>'
+    `<p class="trip-events__msg">${caption}</p>`
   );
 }
 
 export default class EmptyEventsListView extends AbstractView {
+  #caption = '';
+
+  constructor({caption}) {
+    super();
+    this.#caption = caption;
+  }
+
   get template() {
-    return createEmptyEventsListTemplate();
+    return createEmptyEventsListTemplate(this.#caption);
   }
 }

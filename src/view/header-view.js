@@ -38,7 +38,7 @@ export default class HeaderView extends AbstractView {
   }
 
   #calculatePrice() {
-    return this.#routePoints.reduce((total, routePoint) => total + routePoint.price, 0);
+    return this.#routePoints.reduce((total, routePoint) => total + parseInt(routePoint.price, 10), 0);
   }
 
   #getCityDestinations() {

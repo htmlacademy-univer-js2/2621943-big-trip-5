@@ -38,10 +38,6 @@ function getRandomElement(items) {
   return items[getRandomNumber(0, items.length - 1)];
 }
 
-function editListElement(list, element) {
-  return list.map((elementToEdit) => elementToEdit.id === element.id ? element : elementToEdit);
-}
-
 function isCurrentKeyEscape(evt) {
   return evt.key === 'Escape';
 }
@@ -65,7 +61,6 @@ export {
   getRandomNumber,
   formatDate,
   findDuration,
-  editListElement,
   isCurrentKeyEscape,
   sortByTypes,
   filter

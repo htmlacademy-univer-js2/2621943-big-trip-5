@@ -1,40 +1,68 @@
 import {getRandomEvent} from '../mock/event.js';
-import {createOffers} from '../mock/offer.js';
-import {getMockCityDestinations} from '../mock/city-destination.js';
+import Observable from '../framework/observable.js';
 
 const NUMBER_OF_EVENTS = 5;
 
-export default class EventModel {
-  #offers = createOffers();
+export default class EventModel extends Observable {
   #events = [];
-  #cityDestinations = getMockCityDestinations();
 
   constructor() {
+    super();
     this.#generateEvents();
   }
 
   #generateEvents() {
-    const usedEvents = new Set();
+    const usedIds = new Set();
 
     while (this.#events.length < NUMBER_OF_EVENTS) {
       const newEvent = getRandomEvent();
 
-      if (!usedEvents.has(newEvent.id)) {
-        usedEvents.add(newEvent.id);
+      if (!usedIds.has(newEvent.id)) {
+        usedIds.add(newEvent.id);
         this.#events.push(newEvent);
       }
     }
   }
 
-  get offers() {
-    return this.#offers;
+  add(updateType, newEvent) {
+    this.#events = [
+      newEvent,
+      ...this.#events
+    ];
+
+    this._notify(updateType, newEvent);
+  }
+
+  update(updateType, eventToUpdate) {
+    const index = this.#events.findIndex((event) => event.id === eventToUpdate.id);
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting event');
+    }
+
+    this.#events = [
+      ...this.#events.slice(0, index),
+      eventToUpdate,
+      ...this.#events.slice(index + 1),
+    ];
+
+    this._notify(updateType, eventToUpdate);
+  }
+
+  remove(updateType, eventToRemove) {
+    const index = this.#events.findIndex((event) => event.id === eventToRemove.id);
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting event');
+    }
+
+    this.#events = [
+      ...this.#events.slice(0, index),
+      ...this.#events.slice(index + 1),
+    ];
+
+    this._notify(updateType);
   }
 
   get events() {
     return this.#events;
-  }
-
-  get cityDestinations() {
-    return this.#cityDestinations;
   }
 }

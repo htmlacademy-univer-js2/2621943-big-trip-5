@@ -2,7 +2,7 @@ import CurrentEventView from '../view/current-event-view.js';
 import FormEditorView from '../view/form-editor-view.js';
 import {render, replace, remove} from '../framework/render.js';
 import {isCurrentKeyEscape} from '../utils.js';
-
+import {ActionTypes, UserActionTypes} from '../const.js';
 
 const RoutePointModes = {
   SHOW: 'SHOW',
@@ -52,6 +52,7 @@ export default class RoutePointPresenter {
 
       onFormSubmit: this.#formSubmitHandler,
       onFormReset: this.#formResetHandler,
+      onDeleteClick: this.#deleteRoutePointHandler
     });
 
     if (previousRoutePointComponent === null || previousRoutePointEditComponent === null) {
@@ -110,11 +111,18 @@ export default class RoutePointPresenter {
   };
 
   #favoriteClickHandler = () => {
-    this.#handleRoutePointContentChange({...this.#routePoint, isFavorite: !this.#routePoint.isFavorite});
+    this.#handleRoutePointContentChange(UserActionTypes.UPDATE_EVENT, ActionTypes.PATCH, {
+      ...this.#routePoint,
+      isFavorite: !this.#routePoint.isFavorite
+    });
+  };
+
+  #deleteRoutePointHandler = (routePoint) => {
+    this.#handleRoutePointContentChange(UserActionTypes.DELETE_EVENT, ActionTypes.MAJOR, routePoint);
   };
 
   #formSubmitHandler = (routePoint) => {
-    this.#handleRoutePointContentChange(routePoint);
+    this.#handleRoutePointContentChange(UserActionTypes.UPDATE_EVENT, ActionTypes.PATCH, routePoint);
     this.#replaceEditFormToRoutePoint();
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
   };

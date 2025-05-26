@@ -2,6 +2,8 @@ import AbstractView from '../framework/view/abstract-view.js';
 import {formatDate, findDuration} from '../utils.js';
 import {DateTypes} from '../const.js';
 
+import he from 'he';
+
 function createCurrentEventTemplate(event, allOffers, cityDestinations) {
   const {price, dateFrom, dateTo, cityDestination, isFavorite, offers, type} = event;
   const eventTypeOffers = allOffers.find((offer) => offer.type === type);
@@ -13,7 +15,7 @@ function createCurrentEventTemplate(event, allOffers, cityDestinations) {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${type} ${cityDestinationDescription.name}</h3>
+                <h3 class="event__title">${type} ${he.encode(cityDestinationDescription.name)}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="2019-03-18T10:30">${formatDate(dateFrom, DateTypes.TIME)}</time>
