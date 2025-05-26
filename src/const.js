@@ -7,6 +7,13 @@ const FilterTypes = {
   PAST: 'past'
 };
 
+const FilterEventsCaptions = {
+  [FilterTypes.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterTypes.FUTURE]: 'There are no future events now',
+  [FilterTypes.PAST]: 'There are no past events now',
+  [FilterTypes.PRESENT]: 'There are no present events now'
+};
+
 const DateTypes = {
   MONTH: 'D MMM',
   TIME: 'HH:mm',
@@ -21,4 +28,15 @@ const SortingTypes = {
   TIME: 'time'
 };
 
-export {ROUTE_POINT_TYPES, FilterTypes, DateTypes, SortingTypes};
+const ActionTypes = {
+  MAJOR: 'MAJOR',
+  PATCH: 'PATCH'
+};
+
+const UserActionTypes = {
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+  UPDATE_EVENT: 'UPDATE_EVENT',
+};
+
+export {ROUTE_POINT_TYPES, FilterTypes, FilterEventsCaptions, DateTypes, SortingTypes, ActionTypes, UserActionTypes};

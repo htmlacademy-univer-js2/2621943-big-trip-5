@@ -3,6 +3,7 @@ import {ROUTE_POINT_TYPES, DateTypes} from '../const.js';
 
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import he from 'he';
 
 function createCurrentOffersTemplate(routePointOffers, currentOffers) {
   return (
@@ -43,7 +44,7 @@ function createRoutePointsTypesTemplate(currentRoutePointType) {
   );
 }
 
-function createFormEditorTemplate(event, allOffers, cityDestinations) {
+function createEditFormTemplate(event, allOffers, cityDestinations) {
   const {price, dateFrom, dateTo, cityDestination, offers, type} = event;
   const eventTypeOffers = allOffers.find((offer) => offer.type === type);
   const cityDestinationDescription = cityDestinations.find((destination) => destination.id === cityDestination);
@@ -71,7 +72,7 @@ function createFormEditorTemplate(event, allOffers, cityDestinations) {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cityDestinationDescription.name}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(cityDestinationDescription.name)}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       ${renderCityDestinations}
                     </datalist>
@@ -90,7 +91,7 @@ function createFormEditorTemplate(event, allOffers, cityDestinations) {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -125,22 +126,24 @@ export default class FormEditorView extends AbstractStatefulView {
   #cityDestinations = null;
   #formSubmit = null;
   #formReset = null;
+  #deleteClick = null;
   #dateFrom = null;
   #dateTo = null;
 
-  constructor({routePoint, offers, cityDestinations, onFormSubmit, onFormReset}) {
+  constructor({routePoint, offers, cityDestinations, onFormSubmit, onFormReset, onDeleteClick}) {
     super();
     this._setState(routePoint);
     this.#offers = offers;
     this.#cityDestinations = cityDestinations;
     this.#formSubmit = onFormSubmit;
     this.#formReset = onFormReset;
+    this.#deleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createFormEditorTemplate(this._state, this.#offers, this.#cityDestinations);
+    return createEditFormTemplate(this._state, this.#offers, this.#cityDestinations);
   }
 
   removeElement() {
@@ -165,6 +168,11 @@ export default class FormEditorView extends AbstractStatefulView {
     this.#formReset();
   };
 
+  #deleteRoutePointHandler = (evt) => {
+    evt.preventDefault();
+    this.#deleteClick(this._state);
+  };
+
   #chosenRoutePointTypeHandler = (evt) => {
     if (evt.target.closest('input')) {
       this.updateElement({
@@ -175,23 +183,30 @@ export default class FormEditorView extends AbstractStatefulView {
   };
 
   #chosenOffersHandler = (evt) => {
+    const offerId = parseInt(evt.target.dataset.id, 10);
+    const currentOffers = this._state.offers;
+
     if (evt.target.checked) {
       this._setState({
-        offers: [...this._state.offers, parseInt(evt.target.dataset.id, 10)]
+        offers: [...currentOffers, offerId]
+      });
+    } else {
+      this._setState({
+        offers: currentOffers.filter((id) => id !== offerId)
       });
     }
+  };
+
+  #chosenPriceHandler = (evt) => {
+    this._setState({
+      price: evt.target.value
+    });
   };
 
   #chosenCityDestinationHandler = (evt) => {
     const newCityDestination = this.#cityDestinations.find((cityDestination) => cityDestination.name === evt.target.value);
     this.updateElement({
       cityDestination: newCityDestination.id
-    });
-  };
-
-  #chosenPriceHandler = (evt) => {
-    this._setState({
-      price: evt.target.value
     });
   };
 
@@ -240,10 +255,11 @@ export default class FormEditorView extends AbstractStatefulView {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('form').addEventListener('reset', this.#formResetHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formResetHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteRoutePointHandler);
     this.element.querySelector('.event__type-group').addEventListener('click', this.#chosenRoutePointTypeHandler);
     this.element.querySelector('.event__available-offers').addEventListener('change', this.#chosenOffersHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('change', this.#chosenCityDestinationHandler);
     this.element.querySelector('.event__input--price').addEventListener('input', this.#chosenPriceHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#chosenCityDestinationHandler);
     this.#setDates();
   }
 }
