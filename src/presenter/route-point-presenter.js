@@ -136,7 +136,7 @@ export default class RoutePointPresenter {
   setServerSaving() {
     if (this.#currentMode === RoutePointModes.EDIT) {
       this.#routePointEditComponent.updateElement({
-        isSaving: true
+        isServerSaving: true
       });
     }
   }
@@ -144,7 +144,7 @@ export default class RoutePointPresenter {
   setServerDeleting() {
     if (this.#currentMode === RoutePointModes.EDIT) {
       this.#routePointEditComponent.updateElement({
-        isDeleting: true
+        isServerDeleting: true
       });
     }
   }
@@ -156,8 +156,8 @@ export default class RoutePointPresenter {
     }
     const resetFormState = () => {
       this.#routePointEditComponent.updateElement({
-        isSaving: false,
-        isDeleting: false
+        isServerSaving: false,
+        isServerDeleting: false
       });
     };
 

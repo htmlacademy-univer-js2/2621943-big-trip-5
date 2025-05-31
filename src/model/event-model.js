@@ -16,11 +16,13 @@ export default class EventModel extends Observable {
 
   async init() {
     try {
-      await Promise.all([
-        this.#offerModel.init(),
-        this.#cityDestinationModel.init()
+      const [events, offers, destinations] = await Promise.all([
+        this.#eventApiService.events,
+        this.#eventApiService.offers,
+        this.#eventApiService.cityDestinations
       ]);
-      const events = await this.#eventApiService.events;
+      this.#offerModel.init(offers);
+      this.#cityDestinationModel.init(destinations);
       this.#events = events.map(this.#adaptToClient);
       this._notify(ActionTypes.INIT);
 

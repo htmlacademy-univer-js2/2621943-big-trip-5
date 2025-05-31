@@ -45,10 +45,10 @@ function createRoutePointsTypesTemplate(currentRoutePointType) {
 }
 
 function createEditFormTemplate(event, allOffers, cityDestinations) {
-  const {price, dateFrom, dateTo, cityDestination, offers, type, isServerSaving, isServerDeleting} = event;
+  const {price, dateFrom, dateTo, destination, offers, type, isServerSaving, isServerDeleting} = event;
   const eventTypeOffers = allOffers.find((offer) => offer.type === type);
-  const cityDestinationDescription = cityDestinations.find((destination) => destination.id === cityDestination);
-  const renderCityDestinations = cityDestinations.map((destination) => `<option value="${destination.name}"></option>`).join('');
+  const cityDestinationDescription = cityDestinations.find((d) => d.id === destination);
+  const renderCityDestinations = cityDestinations.map((d) => `<option value="${d.name}"></option>`).join('');
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -109,7 +109,7 @@ function createEditFormTemplate(event, allOffers, cityDestinations) {
                   </section>
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${cityDestination.description}</p>
+                    <p class="event__destination-description">${destination.description}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
                         ${cityDestinationDescription.pictures.map((image) => `<img class="event__photo" src="${image.src}" alt="${image.description}">`).join('')}

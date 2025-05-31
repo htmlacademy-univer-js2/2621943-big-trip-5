@@ -5,9 +5,9 @@ import {DateTypes} from '../const.js';
 import he from 'he';
 
 function createCurrentEventTemplate(event, allOffers, cityDestinations) {
-  const {price, dateFrom, dateTo, cityDestination, isFavorite, offers, type} = event;
+  const {price, dateFrom, dateTo, destination, isFavorite, offers, type} = event;
   const eventTypeOffers = allOffers.find((offer) => offer.type === type);
-  const cityDestinationDescription = cityDestinations.find((destination) => destination.id === cityDestination);
+  const cityDestinationDescription = cityDestinations.find((d) => d.id === destination);
 
   return `<li class="trip-events__item">
               <div class="event">

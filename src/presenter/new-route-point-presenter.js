@@ -40,14 +40,14 @@ export default class NewRoutePointPresenter {
 
   setServerSaving() {
     this.#formComponent.updateElement({
-      isSaving: true
+      isServerSaving: true
     });
   }
 
   setServerAborting() {
     const resetFormState = () => {
       this.#formComponent.updateElement({
-        isSaving: false
+        isServerSaving: false
       });
     };
     this.#formComponent.shake(resetFormState);

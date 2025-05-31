@@ -2,17 +2,13 @@ import Observable from '../framework/observable.js';
 
 export default class OfferModel extends Observable {
   #offers = [];
-  #eventApiService = null;
 
-  constructor({eventApiService}) {
+  constructor() {
     super();
-    this.#eventApiService = eventApiService;
   }
 
-  init() {
-    this.#eventApiService.offers.then((offers) => {
-      this.#offers = offers;
-    });
+  init(offers) {
+    this.#offers = offers;
   }
 
   get offers() {

@@ -42,6 +42,6 @@ export default class HeaderView extends AbstractView {
   }
 
   #getCityDestinations() {
-    return this.#routePoints.map((routePoint) => this.#cityDestinations.find((destination) => destination.id === routePoint.cityDestination).name);
+    return this.#routePoints.map((routePoint) => this.#cityDestinations.find((destination) => destination.id === routePoint.destination).name);
   }
 }
