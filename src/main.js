@@ -10,14 +10,14 @@ import CityDestinationModel from './model/city-destination-model.js';
 import EventApiService from './service/event-api-service.js';
 import {AUTHORIZATION, SERVER_ADDRESS} from './const.js';
 
+const eventApiService = new EventApiService(SERVER_ADDRESS, AUTHORIZATION);
+
 const headerContainer = document.querySelector('.trip-main');
 const eventsContainer = document.querySelector('.trip-events');
 const filterContainer = document.querySelector('.trip-controls__filters');
 
-const eventApiService = new EventApiService(SERVER_ADDRESS, AUTHORIZATION);
-
-const offerModel = new OfferModel({eventApiService});
-const cityDestinationModel = new CityDestinationModel({eventApiService});
+const offerModel = new OfferModel();
+const cityDestinationModel = new CityDestinationModel();
 const eventModel = new EventModel({eventApiService, offerModel, cityDestinationModel});
 const filterModel = new FilterModel();
 
